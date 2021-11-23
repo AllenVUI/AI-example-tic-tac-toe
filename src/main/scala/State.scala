@@ -1,3 +1,5 @@
+import java.util.Dictionary
+
 class State() {
 
   val BOARD_ROWS = 4
@@ -25,6 +27,7 @@ class State() {
       }
       this.hash_val
   }
+
   def sum(array: Array): Int = {
     var Sum: Int = 0
     var a = 0;
@@ -33,6 +36,7 @@ class State() {
     }
     return Sum
   }
+
   def is_end(): Boolean ={
     if (this.end != None){
       return this.end
@@ -43,22 +47,32 @@ class State() {
     var a, b, index = 0
     //计算每一行的数值
     for(a <- 0 until this.BOARD_ROWS){
-      results(index) = sum(this.data(a, :))
+      //将二维数组某一行传到函数sum里面去
+      var z = new Array[Int](this.BOARD_ROWS)
+      for(b <- 0 until this.BOARD_ROWS){
+        z(b) = this.data(a)(b)
+      }
+      results(index) = sum(z)
       index += 1
     }
     //计算每一列的数值
     for(a <- 0 until this.BOARD_COLS){
-      results(index) = sum(this.data(:, a))
+      //将二维数组某一列传到函数sum里面去
+      var z = new Array[Int](this.BOARD_COLS)
+      for(b <- 0 until this.BOARD_COLS){
+        z(b) = this.data(b)(a)
+      }
+      results(index) = sum(z)
       index += 1
     }
     //计算主对角线上的数值和
     for(a <- 0 until this.BOARD_ROWS){
-      results(index)+=this.data(a, a)
+      results(index)+=this.data(a)(a)
     }
     index += 1
     //计算副对角线上的数值和
     for(a <- 0 until this.BOARD_ROWS){
-      results(index)+=this.data(a, this.BOARD_ROWS-1-a)
+      results(index)+=this.data(a)(this.BOARD_ROWS-1-a)
     }
 
     //遍历result列表
@@ -79,7 +93,7 @@ class State() {
     //遍历整个二维数组，计算1和-1的个数，若总和与棋盘格子数量相同，则为平局
     for(a <- 0 until this.BOARD_ROWS){
       for(b <- 0 until this.BOARD_COLS){
-        if(this.data(a,b)==1 || this.data(a,b)==-1){
+        if(this.data(a)(b)==1 || this.data(a)(b)==-1){
           tie += 1
         }
       }
@@ -93,6 +107,7 @@ class State() {
     this.end = false
     return this.end
   }
+
   def print_state(): Unit ={
     var i, j = 0
     for(i <- 0 until this.BOARD_ROWS){
@@ -100,13 +115,13 @@ class State() {
       var out = "| "
       var token:String = " "
       for(j <- 0 until this.BOARD_COLS){
-        if(this.data(i, j) == 1){
+        if(this.data(i)(j) == 1){
           token="*"
         }
-        if(this.data(i, j) == 0){
+        if(this.data(i)(j) == 0){
           token="0"
         }
-        if(this.data(i, j) == -1){
+        if(this.data(i)(j) == -1){
           token="x"
         }
         out += token + " | "
@@ -115,22 +130,27 @@ class State() {
     }
     println("-------------")
   }
+
   def next_state(i: Int, j: Int, symbol: Int): State.type  ={
     var new_state = new State()
-    var i = 0
-    for(i <- 0 until this.data.length){
-      new_state(i) = this.data(i)
+    var i,j = 0
+    //复制二维数组
+    for(i <- 0 until this.BOARD_ROWS){
+      for(j <- 0 until this.BOARD_COLS){
+          new_state(i)(j) = this.data(i)(j)
+      }
     }
-    new_state(i, j) = symbol
+    new_state(i)(j) = symbol
     return new_state
   }
+
   def get_all_states_impl(current_state: State.type , current_symbol: Int, all_states: (Int, (State.type, Boolean))): Unit ={
     var i, j= 0
     var isEnd: Boolean
     var newState = new State()
     for(i <- 0 until this.BOARD_ROWS){
       for(j <- 0 until this.BOARD_COLS){}
-      if(current_state.data(i, j) == 0){
+      if(current_state.data(i)(j) == 0){
         newState = current_state.next_state(i, j, current_symbol)
         newHash = newState.hash()
         if(all_states.keys().contains(newHash)){
@@ -156,9 +176,4 @@ class State() {
     get_all_states_impl(current_state, current_symbol, all_states)
     all_states
   }
-
-
-
-
-
 }
